@@ -4,14 +4,12 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace JobListingApp.Models
+namespace JobListingApp.Models.DTOs
 {
-    public class Category : BaseEntity
+    public class CategoryToAddDto
     {
-        [Required]
-        [StringLength(15, MinimumLength = 3, ErrorMessage = "Must be between 3 and 15")]
-        public string CategoryName { get; set; }
 
-        public List<Job> Jobs { get; set; }
+        [Required]
+        public string CategoryName { get; set; }
     }
 }

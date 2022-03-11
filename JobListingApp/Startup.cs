@@ -1,5 +1,10 @@
 using JobListingApp.Data;
+using JobListingApp.Data.Repositories.Implementations;
+using JobListingApp.Data.Repositories.Interfaces;
 using JobListingApp.Models;
+using JobListingApp.Services;
+using JobListingApp.Services.Implementations;
+using JobListingApp.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -11,6 +16,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,12 +36,26 @@ namespace JobListingApp
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddControllers()
+                .ConfigureApiBehaviorOptions(opt => opt.SuppressModelStateInvalidFilter = true)
+                .AddNewtonsoftJson(x => x.SerializerSettings.ReferenceLoopHandling =
+                     Newtonsoft.Json.ReferenceLoopHandling.Ignore).AddNewtonsoftJson(x =>
+                     x.SerializerSettings.ContractResolver = new DefaultContractResolver());
+            services.AddControllers().AddNewtonsoftJson(x => x.SerializerSettings.ReferenceLoopHandling =
+                Newtonsoft.Json.ReferenceLoopHandling.Ignore).AddNewtonsoftJson(x =>
+                x.SerializerSettings.ContractResolver = new DefaultContractResolver());
+
+
             services.AddDbContext<DataContext>((options) => options.UseSqlServer(Configuration.GetConnectionString("Default")));
+            services.AddScoped<IJobRepository, JobRepository>();
+            services.AddScoped<IJobService, JobService>();
+            services.AddScoped<ICategoryRepository, CategoryRepository>();
+            services.AddScoped<ICategoryService, CategoryService>();
             services.AddControllers();
             services.AddSwaggerGen(
                 c =>
                 {
-                    c.SwaggerDoc("v1", new OpenApiInfo { Title = "MyEbookLibrary", Version = "v1" });
+                    c.SwaggerDoc("v1", new OpenApiInfo { Title = "AutoMatJobListing", Version = "v1" });
                 }
                 );
 
@@ -67,6 +87,7 @@ namespace JobListingApp
             });
 
             DbInitializer.SeedUsersAndRolesAsync(app).Wait();
+            DbInitializer.Seed(app);
 
             app.UseSwagger();
             app.UseSwaggerUI(x => x.SwaggerEndpoint("/swagger/v1/swagger.json", "JobListingApp-v1"));

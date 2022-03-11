@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace JobListingApp.Models
+namespace JobListingApp.Models.DTOs
 {
-    public class Job : BaseEntity
+    public class JobToAddDto
     {
         [Required]
         [StringLength(15, MinimumLength = 3, ErrorMessage = "Must be between 3 and 15")]
@@ -25,17 +24,5 @@ namespace JobListingApp.Models
         public int MaximumSalary { get; set; }
         [Required]
         public string Duration { get; set; }
-        [Required]
-        public string CategoryId { get; set; }
-        [ForeignKey("CategoryId")]
-        public Category Category { get; set; }
-
-        public List<UserJob> UserJobs { get; set; }
-
-        public Job()
-        {
-            UserJobs = new List<UserJob>();
-        }
-
     }
 }
